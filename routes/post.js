@@ -13,7 +13,9 @@ router.post('/', async (req, res) => {
   const postData = {
     title: req.body.title,
     text: req.body.text,
-    days: req.body.days
+    days: req.body.days,
+    vacation: req.body.vacation,
+    beginDate:req.body.beginDate
   }
 
   const post = new Post(postData)
