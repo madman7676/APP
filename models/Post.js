@@ -15,10 +15,12 @@ const postSchema = new Schema({
     required: true
   },
   vacation: {
-    type: Number
+    type: Number,
+    value: null
   },
   beginDate: {
-    type: Date
+    type: Date,
+    value: null
   },
   date: {
     type: Date,
