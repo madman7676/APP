@@ -1,6 +1,6 @@
 const card = post => {
   return `
-    <li class="collection-item avatar view" data-id="${post._id}">
+    <li class="collection-item avatar view" data-id="${post._id}" id="forData">
       <a class="modal-trigger view" href="#veiwPerson" style="color: #000000" data-id="${post._id}">
         <span class="title view" data-id="${post._id}"><b>${post.title} ${post.text}</b></span> <br>
         <p class="view" data-id="${post._id}">${post.days}</p>
@@ -65,6 +65,12 @@ class PostApi {
       method: 'delete'
     }).then(res => res.json())
   }
+
+  static update(post) {
+    return fetch(BASE_URL, {
+      method: 'post',
+    }).then(res => res.json())
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -102,7 +108,7 @@ function onCreatePost() {
     const newPost = {
       title: $title.value,
       text: $text.value,
-      days: $days.value
+      days: $days.value,
     }
     PostApi.create(newPost).then(post => {
       posts.push(post)
@@ -149,13 +155,29 @@ function onSetDay(event) {
   if (event.target.classList.contains('configmDates')) {
     const $amount = document.querySelector('#amount')
     const $beginDate = document.querySelector('#vacation')
-    const id = event.target.getAttribute('data-id')
+    const $data = document.querySelector("#forData");
+    const id = $data.getAttribute('data-id')
     const onePerson = posts.find(post => post._id === id)
     onePerson.amount = $amount.value
     onePerson.beginDate = $beginDate.value
-    modal.close()
+
+    PostApi.fetch().then(backendPosts => {
+      posts = backendPosts.concat()
+      posts.updateOne(
+        {_id: id},
+        {$set: {vacation: $amount.value, beginDate: $beginDate.value}},
+        function(err, result){
+          console.log(result);
+          client.close();
+        }
+      )
+      renderPosts(posts)
+    })
+
+
     $amount.value = ''
     $beginDate.value = ''
     M.updateTextFields()
+    modal.close()
   }
 }
