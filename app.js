@@ -16,7 +16,7 @@ mongoose.connect(keys.mongoURI)
 const app = express()
 app.use(bodyParser.json())
 app.use('/api/post', postRouter)
-app.use('/api/vacantion', vacantionRouter)
+app.use('/vacantion', vacantionRouter)
 app.use(express.static(clientPath))
 
 app.listen(port, () => {
