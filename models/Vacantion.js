@@ -3,7 +3,7 @@ const Schema = mongoose.Schema
 
 const vacantionSchema = new Schema({
   personId: {
-    type: Number,
+    type: String,
     required: true
   },
   amount: {
