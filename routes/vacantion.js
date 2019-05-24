@@ -10,15 +10,16 @@ router.get('/', async (req, res) => {
 })
 // ... (POST)
 router.post('/', async (req, res) => {
+
   const vacantionData = {
     personId: req.body.personId,
     amount: req.body.amount,
     beginDate: req.body.beginDate
   }
+
   const vacantion = new Vacantion(vacantionData)
 
   await vacantion.save()
-
   res.status(201).json(vacantion)
 })
 // .../(:id) (DELETE)
