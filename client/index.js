@@ -15,27 +15,27 @@ const card = post => {
 
 const info = person => {
   return `
-  <h4>${person.title} ${person.text}</h4>
-  <p>Recorded in: ${new Date(person.date).toLocaleDateString()}; Days left: ${person.days}</p>
+  <h4 data-id="${person._id}">${person.title} ${person.text}</h4>
+  <p data-id="${person._id}">Recorded in: ${new Date(person.date).toLocaleDateString()}; Days left: ${person.days}</p>
   `
 }
 
-const noDays = person => {
+const addDays = person => {
   return `
-  <p>Set vacation days</p>
+  <p data-id="${person._id}">Add vacation days</p>
   <button class="btn btn-small green setData modal-trigger" data-id="${person._id}" data-target="setDays">
     <i class="material-icons setData" data-id="${person._id}">add</i>
   </button>
   `
 }
 
-const haveDays = person => {
+const haveDays = vacantion => {
   return `
-  <p>Your have ${person.vacation} vacation days<p>
-  <p>Yor vacantion started in: ${new Date(person.beginDate).toLocaleDateString()}</p>
+  <p>Your have ${vacantion.amount} vacation days<p>
+  <p>Yor vacantion started in: ${new Date(vacantion.beginDate).toLocaleDateString()}</p>
   <p>Remove vacation days</p>
-  <button class="btn btn-small red removeData" data-id="${person._id}">
-    <i class="material-icons removeData" data-id="${person._id}">delete</i>
+  <button class="btn btn-small red removeData" data-id="${vacantion._id}">
+    <i class="material-icons removeData" data-id="${vacantion._id}">delete</i>
   </button>
   `
 }
@@ -43,7 +43,7 @@ const haveDays = person => {
 let posts = [], vacantions = []
 let modal, modal2, modal3
 const BASE_URL = '/api/post'
-const URL = '/api/vacantion'
+const URL = '/vacantion'
 
 class VacantionApi {
   static fetch() {
@@ -57,6 +57,12 @@ class VacantionApi {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       }
+    }).then(res => res.json())
+  }
+
+  static remove(id) {
+    return fetch(`${URL}/${id}`, {
+      method: 'delete'
     }).then(res => res.json())
   }
 }
@@ -90,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPosts(posts)
   })
   VacantionApi.fetch().then(backendVacantion => {
-    vacation = backendVacantion.concat()
+    vacantions = backendVacantion.concat()
   })
 
   modal = M.Modal.init(document.querySelector('.modal'))
@@ -100,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('#createPost').addEventListener('click', onCreatePost)
   document.querySelector('#posts').addEventListener('click', onDeletePost)
   document.querySelector('#posts').addEventListener('click', onOpenModal)
+  document.querySelector('#vacantions').addEventListener('click', onDeleteVacantions)
   document.querySelector('#setDays').addEventListener('click', onSetDay)
 })
 
@@ -151,26 +158,37 @@ function onDeletePost(event) {
     }
   }
 }
-
+let dataId
 function onOpenModal(event) {
   if (event.target.classList.contains('view')) {
     const $person = document.querySelector('#information')
     const id = event.target.getAttribute('data-id')
+    dataId = id
     const onePerson = posts.find(post => post._id === id)
     $person.innerHTML = info(onePerson)
     renderVacantions()
   }
 }
 
+function findAll($vacantions, id, person){
+  let find = vacantions.find(vacantion => vacantion.personId === id)
+  if(find){
+    return haveDays(find)
+  }else {
+    return addDays(person)
+  }
+}
+
 function renderVacantions(_vacantions = []) {
+
   const $person = document.querySelector('#information')
   const id = event.target.getAttribute('data-id')
   const onePerson = posts.find(post => post._id === id)
   const $vacantions = document.querySelector('#vacantions')
-  if(_vacantions.length > 0){
-    $vacantions.innerHTML = _vacantions.map(vacation => haveDays(vacantion) + noDays(onePerson)).join(' ')
+  if(vacantions.length > 0){
+    $vacantions.innerHTML = findAll($vacantions, id, onePerson)
   } else {
-    $vacantions.innerHTML = noDays(onePerson) + ' '
+    $vacantions.innerHTML = addDays(onePerson)
   }
 }
 
@@ -178,10 +196,8 @@ function onSetDay(event) {
   if (event.target.classList.contains('configmDates')) {
     const $amount = document.querySelector('#amount')
     const $beginDate = document.querySelector('#vacation')
-    const $data = document.querySelector("#forData");
-    const id = $data.getAttribute('data-id')
-
-    //if($amount && $beginDate){
+    const id = dataId
+    if($amount && $beginDate){
       const newVacantion = {
         personId: id,
         amount: $amount.value,
@@ -191,12 +207,26 @@ function onSetDay(event) {
         vacantions.push(vacantion)
       })
 
-    //}
+    }
 
     modal2.close()
     modal3.close()
     $amount.value = ''
     $beginDate.value = ''
     M.updateTextFields()
+
+    location.reload()
+  }
+}
+
+function onDeleteVacantions(event){
+  if (event.target.classList.contains('removeData')){
+    const decision = confirm('You sure about this?')
+
+    if(confirm){
+      const id = event.target.getAttribute('data-id')
+
+      VacantionApi.remove(id).then(() => location.reload())
+    }
   }
 }
