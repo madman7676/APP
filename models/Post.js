@@ -14,14 +14,6 @@ const postSchema = new Schema({
     type: Number,
     required: true
   },
-  vacation: {
-    type: Number,
-    value: null
-  },
-  beginDate: {
-    type: Date,
-    value: null
-  },
   date: {
     type: Date,
     default: Date.now
