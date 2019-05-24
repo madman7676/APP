@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const path = require('path')
 const postRouter = require('./routes/post')
+const vacantionRouter = require('./routes/vacantion')
 const keys = require('./keys')
 
 const port = process.env.PORT || 5000
@@ -14,7 +15,8 @@ mongoose.connect(keys.mongoURI)
 
 const app = express()
 app.use(bodyParser.json())
-app.use('/post', postRouter)
+app.use('/api/post', postRouter)
+app.use('/api/vacantion', vacantionRouter)
 app.use(express.static(clientPath))
 
 app.listen(port, () => {
