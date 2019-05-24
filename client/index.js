@@ -40,9 +40,26 @@ const haveDays = person => {
   `
 }
 
-let posts = []
+let posts = [], vacantions = []
 let modal, modal2, modal3
-const BASE_URL = '/post'
+const BASE_URL = '/api/post'
+const URL = '/api/vacantion'
+
+class VacantionApi {
+  static fetch() {
+    return fetch(URL, {method: 'get'}).then(res => res.json())
+  }
+  static create(vacantion) {
+    return fetch(URL, {
+      method: 'post',
+      body: JSON.stringify(vacantion),
+      headers:{
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json())
+  }
+}
 
 class PostApi {
   static fetch() {
@@ -65,18 +82,15 @@ class PostApi {
       method: 'delete'
     }).then(res => res.json())
   }
-
-  static update(post) {
-    return fetch(BASE_URL, {
-      method: 'post',
-    }).then(res => res.json())
-  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   PostApi.fetch().then(backendPosts => {
     posts = backendPosts.concat()
     renderPosts(posts)
+  })
+  VacantionApi.fetch().then(backendVacantion => {
+    vacation = backendVacantion.concat()
   })
 
   modal = M.Modal.init(document.querySelector('.modal'))
@@ -143,11 +157,20 @@ function onOpenModal(event) {
     const $person = document.querySelector('#information')
     const id = event.target.getAttribute('data-id')
     const onePerson = posts.find(post => post._id === id)
-    if(onePerson.vacation > 0){
-      $person.innerHTML = info(onePerson) + haveDays(onePerson)
-    } else {
-      $person.innerHTML = info(onePerson) + noDays(onePerson)
-    }
+    $person.innerHTML = info(onePerson)
+    renderVacantions()
+  }
+}
+
+function renderVacantions(_vacantions = []) {
+  const $person = document.querySelector('#information')
+  const id = event.target.getAttribute('data-id')
+  const onePerson = posts.find(post => post._id === id)
+  const $vacantions = document.querySelector('#vacantions')
+  if(_vacantions.length > 0){
+    $vacantions.innerHTML = _vacantions.map(vacation => haveDays(vacantion) + noDays(onePerson)).join(' ')
+  } else {
+    $vacantions.innerHTML = noDays(onePerson) + ' '
   }
 }
 
@@ -157,27 +180,23 @@ function onSetDay(event) {
     const $beginDate = document.querySelector('#vacation')
     const $data = document.querySelector("#forData");
     const id = $data.getAttribute('data-id')
-    const onePerson = posts.find(post => post._id === id)
-    onePerson.amount = $amount.value
-    onePerson.beginDate = $beginDate.value
 
-    PostApi.fetch().then(backendPosts => {
-      posts = backendPosts.concat()
-      posts.updateOne(
-        {_id: id},
-        {$set: {vacation: $amount.value, beginDate: $beginDate.value}},
-        function(err, result){
-          console.log(result);
-          client.close();
-        }
-      )
-      renderPosts(posts)
-    })
+    //if($amount && $beginDate){
+      const newVacantion = {
+        personId: id,
+        amount: $amount.value,
+        beginDate: $beginDate.value
+      }
+      VacantionApi.create(newVacantion).then(vacantion => {
+        vacantions.push(vacantion)
+      })
 
+    //}
 
+    modal2.close()
+    modal3.close()
     $amount.value = ''
     $beginDate.value = ''
     M.updateTextFields()
-    modal.close()
   }
 }
