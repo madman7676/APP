@@ -16,7 +16,7 @@ const card = post => {
 const info = person => {
   return `
   <h4 data-id="${person._id}">${person.title} ${person.text}</h4>
-  <p data-id="${person._id}">Recorded in: ${new Date(person.date).toLocaleDateString()}; Days left: ${person.days}</p>
+  <p data-id="${person._id}">Recorded in: ${new Date(person.date).toLocaleDateString()}</p>
   `
 }
 
