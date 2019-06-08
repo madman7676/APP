@@ -6,7 +6,7 @@ const card = post => {
         <p class="view" data-id="${post._id}">${post.about}</p>
         <small class="view" data-id="${post._id}">${new Date(post.date).toLocaleDateString()}</small> <br>
       </a>
-<button class="btn btn-small red js-remove" data-id="${post._id}">
+      <button class="btn btn-small red js-remove" data-id="${post._id}">
         <i class="material-icons js-remove" data-id="${post._id}">delete</i>
       </button>
     </li>
